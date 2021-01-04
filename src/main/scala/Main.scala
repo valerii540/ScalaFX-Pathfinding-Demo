@@ -1,10 +1,8 @@
-import javafx.scene.layout.{Region => jfxRegion}
-import scalafx.Includes._
+import graph.Node
 import scalafx.application.JFXApp
 import scalafx.beans.binding.NumberBinding
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
-import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout._
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Rectangle
@@ -12,7 +10,7 @@ import scalafx.scene.shape.Rectangle
 object Main extends JFXApp {
 
   stage = new JFXApp.PrimaryStage { rootScene =>
-    title = ""
+    title = "ScalaFX Pathfinding Demo"
     width = 600
     height = 400
 
@@ -25,7 +23,6 @@ object Main extends JFXApp {
           width <== rootScene.width * 0.2
           height <== rootScene.height
         }
-
       }
     }
   }
@@ -34,16 +31,7 @@ object Main extends JFXApp {
     val mapColumns = 15
     val mapRows    = 11
 
-    val paintRed = "-fx-background-color: rgb(178,34,34)"
-
-    def createTile: Region =
-      new Region {
-        style = "-fx-background-color: rgb(144,238,144)"
-        onDragDetected = (e: MouseEvent) => e.getSource.asInstanceOf[jfxRegion].startFullDrag()
-
-        onMouseDragEntered = _ => style = paintRed
-        onMouseClicked = _ => style = paintRed
-      }
+    def createTile: Region = Node()
 
     //FIXME: grid height must be equal grid width
     val grid = new GridPane {
