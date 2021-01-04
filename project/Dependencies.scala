@@ -15,5 +15,7 @@ object Dependencies {
       .map(m => "org.openjfx" % s"javafx-$m" % "15.0.1" classifier osName)
   }
 
-  lazy val allScalaFXDependencies: Seq[ModuleID] = scalaFX +: javaFXModules
+  private lazy val enumeratum = "com.beachape" %% "enumeratum" % "1.6.1"
+
+  lazy val allProjectDependencies: Seq[ModuleID] =  enumeratum +: scalaFX +: javaFXModules
 }
