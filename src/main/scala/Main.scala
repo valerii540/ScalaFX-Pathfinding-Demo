@@ -1,4 +1,5 @@
-import graph.Node
+import graph.Graph
+import graph.Graph.{mapColumns, mapRows}
 import scalafx.application.JFXApp
 import scalafx.beans.binding.NumberBinding
 import scalafx.geometry.Insets
@@ -28,10 +29,7 @@ object Main extends JFXApp {
   }
 
   def createGrid(gridWidth: NumberBinding): GridPane = {
-    val mapColumns = 15
-    val mapRows    = 11
-
-    def createTile: Region = Node()
+    def createTile(i: Int, j: Int): Region = Graph.insertNode(i, j)
 
     //FIXME: grid height must be equal grid width
     val grid = new GridPane {
@@ -56,7 +54,7 @@ object Main extends JFXApp {
       for {
         i <- 0 until mapColumns
         j <- 0 until mapRows
-      } add(createTile, i, j, 1, 1)
+      } add(createTile(i, j), i, j, 1, 1)
     }
 
     grid
