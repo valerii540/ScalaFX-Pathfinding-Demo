@@ -26,7 +26,7 @@ object Node {
 
   def backgroundStyle(color: String) = s"-fx-background-color: $color"
 
-  def createNode(row: Int, col: Int): Node = {
+  def createNode(row: Int, col: Int, grid: Grid): Node = {
     val region = new Region {
       style = Node.backgroundStyle(Undiscovered.color)
     }
@@ -44,7 +44,7 @@ object Node {
       node.handlePaint()
     }
 
-    Grid(col)(row) = node
+    grid(col)(row) = node
 
     node
   }

@@ -1,14 +1,19 @@
-import graph.Grid.{mapColumns, mapRows}
-import graph.Node
+import graph.{Grid, Node}
 import scalafx.application.JFXApp
 import scalafx.beans.binding.NumberBinding
-import scalafx.geometry.Insets
+import scalafx.beans.property.{ObjectProperty, StringProperty}
+import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
+import scalafx.scene.control.{Label, TextField}
 import scalafx.scene.layout._
-import scalafx.scene.paint.Color
-import scalafx.scene.shape.Rectangle
 
 object Main extends JFXApp {
+  private val gridView: ObjectProperty[Grid] = ObjectProperty(new Grid(11, 15))
+  private val rowsView: StringProperty       = StringProperty(gridView.value.mapRows.toString)
+  private val columnsView: StringProperty    = StringProperty(gridView.value.mapColumns.toString)
+
+  rowsView.onChange((_, _, newRows) => gridView.value = new Grid(newRows.toInt, gridView.value.mapColumns))
+  columnsView.onChange((_, _, newColumns) => gridView.value = new Grid(gridView.value.mapRows, newColumns.toInt))
 
   stage = new JFXApp.PrimaryStage { rootScene =>
     title = "ScalaFX Pathfinding Demo"
@@ -17,22 +22,44 @@ object Main extends JFXApp {
 
     scene = new Scene {
       content = new BorderPane {
-        center = createGrid(rootScene.width * 0.8)
+        gridView.onChange((_, _, newGrid) => center = createGrid(rootScene.width * 0.8, newGrid))
 
-        right = new Rectangle {
-          fill = Color.Orange
-          width <== rootScene.width * 0.2
-          height <== rootScene.height
+        center = createGrid(rootScene.width * 0.8, gridView.value)
+
+        right = new VBox {
+          minHeight <== rootScene.height
+          maxWidth <== rootScene.width * 0.2
+          children = Seq(
+            new HBox {
+              children = Seq(
+                new Label("rows:"),
+                new TextField {
+                  prefWidth = 50
+                  text <==> rowsView
+                }
+              )
+            },
+            new HBox {
+              alignment = Pos.Center
+              children = Seq(
+                new Label("columns:"),
+                new TextField {
+                  prefWidth = 50
+                  text <==> columnsView
+                }
+              )
+            }
+          )
         }
       }
     }
   }
 
-  def createGrid(gridWidth: NumberBinding): GridPane = {
-    def createTile(i: Int, j: Int): Region = Node.createNode(i, j).region
+  def createGrid(gridWidth: NumberBinding, grid: Grid): GridPane = {
+    def createTile(i: Int, j: Int): Region = Node.createNode(i, j, grid).region
 
     //FIXME: grid height must be equal grid width
-    val grid = new GridPane {
+    val gridPane = new GridPane {
       hgap = 1
       vgap = 1
       minWidth <== gridWidth
@@ -40,23 +67,23 @@ object Main extends JFXApp {
       //FIXME: weird bottom offset
       padding = Insets(2, 2, 26, 2)
 
-      columnConstraints = (0 until mapColumns).map(_ =>
+      columnConstraints = (0 until grid.mapColumns).map(_ =>
         new ColumnConstraints {
           hgrow = Priority.Always
         }
       )
-      rowConstraints = (0 until mapRows).map(_ =>
+      rowConstraints = (0 until grid.mapRows).map(_ =>
         new RowConstraints {
           vgrow = Priority.Always
         }
       )
 
       for {
-        i <- 0 until mapColumns
-        j <- 0 until mapRows
+        i <- 0 until grid.mapColumns
+        j <- 0 until grid.mapRows
       } add(createTile(i, j), i, j)
     }
 
-    grid
+    gridPane
   }
 }
