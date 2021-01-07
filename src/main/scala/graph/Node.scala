@@ -5,6 +5,7 @@ import javafx.scene.layout.{Region => JRegion}
 import scalafx.Includes._
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.Region
+import views.Grid
 
 final class Node(val region: Region, var state: NodeState) {
   import Node._
