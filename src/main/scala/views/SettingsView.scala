@@ -3,10 +3,12 @@ package views
 import scalafx.beans.binding.NumberBinding
 import scalafx.beans.property.StringProperty
 import scalafx.geometry.Insets
-import scalafx.scene.control.{Label, TextField}
+import scalafx.scene.control.{Label, TextField, ToggleButton, ToggleGroup}
 import scalafx.scene.layout.{HBox, Pane, Region, VBox}
 
 object SettingsView {
+  val toolsToggleGroup = new ToggleGroup
+
   def createSettingsView(widthProp: NumberBinding, rows: StringProperty, columns: StringProperty): Pane =
     new VBox {
       minWidth <== widthProp
@@ -29,6 +31,23 @@ object SettingsView {
           children = Seq(
             new Label("columns:") { minWidth = Region.USE_PREF_SIZE },
             new TextField         { text <==> columns               }
+          )
+        },
+        new VBox {
+          children = Seq(
+            new ToggleButton {
+              text = Tools.Obstacle.entryName
+              toggleGroup = toolsToggleGroup
+              selected = true
+            },
+            new ToggleButton {
+              text = Tools.Start.entryName
+              toggleGroup = toolsToggleGroup
+            },
+            new ToggleButton {
+              text = Tools.Target.entryName
+              toggleGroup = toolsToggleGroup
+            }
           )
         }
       )

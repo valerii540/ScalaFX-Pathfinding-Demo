@@ -2,6 +2,7 @@ package views
 
 import graph.Node
 import scalafx.beans.binding.NumberBinding
+import scalafx.beans.property.ObjectProperty
 import scalafx.geometry.Insets
 import scalafx.scene.layout._
 
@@ -13,8 +14,8 @@ final class Grid(val mapRows: Int, val mapColumns: Int) {
 
 object GridView {
 
-  def createGridPane(gridWidth: NumberBinding, grid: Grid): GridPane = {
-    def createTile(i: Int, j: Int): Region = Node.createNode(i, j, grid).region
+  def createGridPane(gridWidth: NumberBinding, grid: Grid, toolProp: ObjectProperty[Tool]): GridPane = {
+    def createTile(i: Int, j: Int): Region = Node.createNode(i, j, grid, toolProp).region
 
     //FIXME: grid height must be equal grid width
     val gridPane = new GridPane {
