@@ -4,7 +4,7 @@ import graph.NodeStates._
 import scalafx.beans.binding.NumberBinding
 import scalafx.beans.property.StringProperty
 import scalafx.geometry.Insets
-import scalafx.scene.control.{Label, TextField, ToggleButton, ToggleGroup}
+import scalafx.scene.control.{Label, Separator, TextField, ToggleButton, ToggleGroup}
 import scalafx.scene.layout.{HBox, Pane, Region, VBox}
 
 object SettingsView {
@@ -17,9 +17,10 @@ object SettingsView {
 
       style = "-fx-background-color: rgb(224,224,224)"
       padding = Insets(2, 4, 2, 2)
+      spacing = 5
 
       children = Seq(
-        new HBox { hBox =>
+        new HBox         { hBox =>
           maxWidth <== widthProp
           children = Seq(
             new Label("rows:") { minWidth = Region.USE_PREF_SIZE },
@@ -28,28 +29,25 @@ object SettingsView {
             }
           )
         },
-        new HBox {
+        new HBox         {
           children = Seq(
             new Label("columns:") { minWidth = Region.USE_PREF_SIZE },
             new TextField         { text <==> columns               }
           )
         },
-        new VBox {
-          children = Seq(
-            new ToggleButton {
-              text = Obstacle.entryName
-              toggleGroup = toolsToggleGroup
-              selected = true
-            },
-            new ToggleButton {
-              text = Start.entryName
-              toggleGroup = toolsToggleGroup
-            },
-            new ToggleButton {
-              text = Target.entryName
-              toggleGroup = toolsToggleGroup
-            }
-          )
+        new Separator,
+        new ToggleButton {
+          text = Obstacle.entryName
+          toggleGroup = toolsToggleGroup
+          selected = true
+        },
+        new ToggleButton {
+          text = Start.entryName
+          toggleGroup = toolsToggleGroup
+        },
+        new ToggleButton {
+          text = Target.entryName
+          toggleGroup = toolsToggleGroup
         }
       )
     }
