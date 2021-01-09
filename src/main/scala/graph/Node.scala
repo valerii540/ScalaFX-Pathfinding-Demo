@@ -1,11 +1,12 @@
 package graph
 
+import graph.NodeStates._
 import javafx.scene.layout.{Region => JRegion}
 import scalafx.Includes._
 import scalafx.beans.property.ObjectProperty
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.Region
-import views.{Grid, Tool, Tools}
+import views.Grid
 
 final class Node(val region: Region) {
   import Node._
@@ -19,21 +20,21 @@ final class Node(val region: Region) {
 
   def obstacleToolHandler(): Unit =
     state match {
-      case NodeStates.Undiscovered => changeStateTo(NodeStates.Wall)
-      case NodeStates.Wall         => changeStateTo(NodeStates.Undiscovered)
-      case _                       =>
+      case Undiscovered => changeStateTo(Obstacle)
+      case Obstacle     => changeStateTo(Undiscovered)
+      case _            =>
     }
 
   def startAndTargetToolHandler(targetState: NodeState): Unit = {
     targetState match {
-      case NodeStates.Start  =>
+      case Start  =>
         if (startNode.isDefined)
-          startNode.get.changeStateTo(NodeStates.Undiscovered)
+          startNode.get.changeStateTo(Undiscovered)
 
         startNode = Some(this)
-      case NodeStates.Target =>
+      case Target =>
         if (targetNode.isDefined)
-          targetNode.get.changeStateTo(NodeStates.Undiscovered)
+          targetNode.get.changeStateTo(Undiscovered)
 
         targetNode = Some(this)
     }
@@ -43,41 +44,41 @@ final class Node(val region: Region) {
 }
 
 object Node {
-  private var dragSourceState: NodeState = NodeStates.Undiscovered
+  private var dragSourceState: NodeState = Undiscovered
   private var startNode: Option[Node]    = None
   private var targetNode: Option[Node]   = None
 
   def backgroundStyle(color: String) = s"-fx-background-color: $color"
 
-  def createNode(row: Int, col: Int, grid: Grid, toolProp: ObjectProperty[Tool]): Node = {
+  def createNode(row: Int, col: Int, grid: Grid, toolProp: ObjectProperty[NodeState]): Node = {
     val region = new Region {
-      style = Node.backgroundStyle(NodeStates.Undiscovered.color)
+      style = Node.backgroundStyle(Undiscovered.color)
     }
 
     val node = new Node(region)
 
     region.onDragDetected = (e: MouseEvent) => {
       toolProp.value match {
-        case Tools.Obstacle =>
+        case Obstacle =>
           e.getSource.asInstanceOf[JRegion].startFullDrag()
           dragSourceState = node.state
           node.obstacleToolHandler()
-        case _              =>
+        case _        =>
       }
     }
 
     region.onMouseDragEntered = _ =>
-      if (toolProp.value == Tools.Obstacle && node.state == dragSourceState)
+      if (toolProp.value == NodeStates.Obstacle && node.state == dragSourceState)
         node.obstacleToolHandler()
 
     region.onMouseClicked = _ => {
       toolProp.value match {
-        case Tools.Obstacle =>
+        case NodeStates.Obstacle =>
           dragSourceState = node.state
           node.obstacleToolHandler()
-        case Tools.Start    =>
+        case NodeStates.Start    =>
           node.startAndTargetToolHandler(NodeStates.Start)
-        case Tools.Target   =>
+        case NodeStates.Target   =>
           node.startAndTargetToolHandler(NodeStates.Target)
       }
     }

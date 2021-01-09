@@ -1,3 +1,4 @@
+import graph.{NodeState, NodeStates}
 import javafx.scene.control.{ToggleButton => JToggleButton}
 import scalafx.Includes._
 import scalafx.application.JFXApp
@@ -8,16 +9,16 @@ import scalafx.scene.layout._
 import views._
 
 object Main extends JFXApp {
-  private val gridProp: ObjectProperty[Grid] = ObjectProperty(new Grid(11, 15))
-  private val rowsProp: StringProperty       = StringProperty(gridProp.value.mapRows.toString)
-  private val columnsProp: StringProperty    = StringProperty(gridProp.value.mapColumns.toString)
-  private val toolProp: ObjectProperty[Tool] = ObjectProperty(Tools.Obstacle)
+  private val gridProp: ObjectProperty[Grid]      = ObjectProperty(new Grid(11, 15))
+  private val rowsProp: StringProperty            = StringProperty(gridProp.value.mapRows.toString)
+  private val columnsProp: StringProperty         = StringProperty(gridProp.value.mapColumns.toString)
+  private val toolProp: ObjectProperty[NodeState] = ObjectProperty(NodeStates.Obstacle)
 
   rowsProp.onChange((_, _, newRows) => gridProp.value = new Grid(newRows.toInt, gridProp.value.mapColumns))
   columnsProp.onChange((_, _, newColumns) => gridProp.value = new Grid(gridProp.value.mapRows, newColumns.toInt))
 
   SettingsView.toolsToggleGroup.selectedToggle.onChange { (_, _, newToggle) =>
-    toolProp.value = Tools.withName(newToggle.asInstanceOf[JToggleButton].text.value)
+    toolProp.value = NodeStates.withName(newToggle.asInstanceOf[JToggleButton].text.value)
   }
 
   stage = new JFXApp.PrimaryStage {

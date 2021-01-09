@@ -1,5 +1,6 @@
 package views
 
+import graph.NodeStates._
 import scalafx.beans.binding.NumberBinding
 import scalafx.beans.property.StringProperty
 import scalafx.geometry.Insets
@@ -36,16 +37,16 @@ object SettingsView {
         new VBox {
           children = Seq(
             new ToggleButton {
-              text = Tools.Obstacle.entryName
+              text = Obstacle.entryName
               toggleGroup = toolsToggleGroup
               selected = true
             },
             new ToggleButton {
-              text = Tools.Start.entryName
+              text = Start.entryName
               toggleGroup = toolsToggleGroup
             },
             new ToggleButton {
-              text = Tools.Target.entryName
+              text = Target.entryName
               toggleGroup = toolsToggleGroup
             }
           )
