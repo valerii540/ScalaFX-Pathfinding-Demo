@@ -9,13 +9,13 @@ import scalafx.scene.layout._
 import views._
 
 object Main extends JFXApp {
-  private val gridProp: ObjectProperty[Grid]      = ObjectProperty(new Grid(11, 15))
+  private val toolProp: ObjectProperty[NodeState] = ObjectProperty(NodeStates.Obstacle)
+  private val gridProp: ObjectProperty[Grid]      = ObjectProperty(new Grid(11, 15, toolProp))
   private val rowsProp: StringProperty            = StringProperty(gridProp.value.mapRows.toString)
   private val columnsProp: StringProperty         = StringProperty(gridProp.value.mapColumns.toString)
-  private val toolProp: ObjectProperty[NodeState] = ObjectProperty(NodeStates.Obstacle)
 
-  rowsProp.onChange((_, _, newRows) => gridProp.value = new Grid(newRows.toInt, gridProp.value.mapColumns))
-  columnsProp.onChange((_, _, newColumns) => gridProp.value = new Grid(gridProp.value.mapRows, newColumns.toInt))
+  rowsProp.onChange((_, _, newRows) => gridProp.value = new Grid(newRows.toInt, gridProp.value.mapColumns, toolProp))
+  columnsProp.onChange((_, _, newColumns) => gridProp.value = new Grid(gridProp.value.mapRows, newColumns.toInt, toolProp))
 
   SettingsView.toolsToggleGroup.selectedToggle.onChange { (_, _, newToggle) =>
     toolProp.value = NodeStates.withName(newToggle.asInstanceOf[JToggleButton].text.value)
@@ -32,11 +32,11 @@ object Main extends JFXApp {
 
         padding = Insets(2, 2, 2, 2)
 
-        gridProp.onChange((_, _, newGrid) => center = GridView.createGridPane(mainScene.width * 0.8, newGrid, toolProp))
+        gridProp.onChange((_, _, newGrid) => center = GridView.createGridPane(mainScene.width * 0.8, newGrid))
 
         right = SettingsView.createSettingsView(mainScene.width * 0.2, rowsProp, columnsProp)
 
-        center = GridView.createGridPane(mainScene.width * 0.8, gridProp.value, toolProp)
+        center = GridView.createGridPane(mainScene.width * 0.8, gridProp.value)
       }
     }
   }

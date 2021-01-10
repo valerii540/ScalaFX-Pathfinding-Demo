@@ -5,13 +5,13 @@ import javafx.scene.layout.{Region => JRegion}
 import scalafx.Includes._
 import scalafx.beans.property.ObjectProperty
 import scalafx.scene.input.MouseEvent
-import scalafx.scene.layout.Region
-import views.Grid
+import scalafx.scene.layout.{Region, StackPane}
+import scalafx.scene.text.Text
 
-final class Node(val region: Region) {
+final class Node(val region: Region, val neighbours: Set[Node] = Set.empty) {
   import Node._
 
-  private var state: NodeState = NodeStates.Undiscovered
+  var state: NodeState = NodeStates.Undiscovered
 
   private def changeStateTo(newState: NodeState): Unit = {
     region.style = backgroundStyle(newState.color)
@@ -50,14 +50,17 @@ object Node {
 
   def backgroundStyle(color: String) = s"-fx-background-color: $color"
 
-  def createNode(row: Int, col: Int, grid: Grid, toolProp: ObjectProperty[NodeState]): Node = {
-    val region = new Region {
+  def createNode(toolProp: ObjectProperty[NodeState]): Node = {
+    val nodeView = new StackPane {
       style = Node.backgroundStyle(Undiscovered.color)
+      children = new Text {
+        text = ""
+      }
     }
 
-    val node = new Node(region)
+    val node = new Node(nodeView)
 
-    region.onDragDetected = (e: MouseEvent) => {
+    nodeView.onDragDetected = (e: MouseEvent) => {
       toolProp.value match {
         case Obstacle =>
           e.getSource.asInstanceOf[JRegion].startFullDrag()
@@ -67,11 +70,11 @@ object Node {
       }
     }
 
-    region.onMouseDragEntered = _ =>
+    nodeView.onMouseDragEntered = _ =>
       if (toolProp.value == NodeStates.Obstacle && node.state == dragSourceState)
         node.obstacleToolHandler()
 
-    region.onMouseClicked = _ => {
+    nodeView.onMouseClicked = _ => {
       toolProp.value match {
         case NodeStates.Obstacle =>
           dragSourceState = node.state
@@ -82,8 +85,6 @@ object Node {
           node.startAndTargetToolHandler(NodeStates.Target)
       }
     }
-
-    grid(col)(row) = node
 
     node
   }
