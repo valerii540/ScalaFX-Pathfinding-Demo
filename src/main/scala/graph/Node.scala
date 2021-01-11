@@ -8,7 +8,7 @@ import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.{Region, StackPane}
 import scalafx.scene.text.Text
 
-final class Node(val region: Region, val neighbours: Set[Node] = Set.empty) {
+final class Node(val region: Region) {
   import Node._
 
   var state: NodeState = NodeStates.Undiscovered

@@ -1,19 +1,24 @@
 package views
 
+import graph.Graph
 import graph.NodeStates._
 import scalafx.beans.binding.NumberBinding
-import scalafx.beans.property.StringProperty
+import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.geometry.Insets
-import scalafx.scene.control.{Label, Separator, TextField, ToggleButton, ToggleGroup}
+import scalafx.scene.control._
 import scalafx.scene.layout.{HBox, Pane, Region, VBox}
 
 object SettingsView {
   val toolsToggleGroup = new ToggleGroup
 
-  def createSettingsView(widthProp: NumberBinding, rows: StringProperty, columns: StringProperty): Pane =
+  def createSettingsView(
+      widthProp: NumberBinding,
+      rows: StringProperty,
+      columns: StringProperty,
+      gridProp: ObjectProperty[Grid]
+  ): Pane =
     new VBox {
-      minWidth <== widthProp
-      maxWidth <== minWidth
+      prefWidth <== widthProp
 
       style = "-fx-background-color: rgb(224,224,224)"
       padding = Insets(2, 4, 2, 2)
@@ -21,10 +26,10 @@ object SettingsView {
 
       children = Seq(
         new HBox         { hBox =>
-          maxWidth <== widthProp
           children = Seq(
             new Label("rows:") { minWidth = Region.USE_PREF_SIZE },
             new TextField      {
+              prefWidth <== widthProp
               text <==> rows
             }
           )
@@ -32,7 +37,10 @@ object SettingsView {
         new HBox         {
           children = Seq(
             new Label("columns:") { minWidth = Region.USE_PREF_SIZE },
-            new TextField         { text <==> columns               }
+            new TextField         {
+              prefWidth <== widthProp
+              text <==> columns
+            }
           )
         },
         new Separator,
@@ -48,6 +56,13 @@ object SettingsView {
         new ToggleButton {
           text = Target.entryName
           toggleGroup = toolsToggleGroup
+        },
+        new Separator,
+        new Button       {
+          text = "Run"
+          onMouseClicked = _ => {
+            val graph = Graph(gridProp.value.matrix)
+          }
         }
       )
     }

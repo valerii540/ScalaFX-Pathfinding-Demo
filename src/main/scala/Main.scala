@@ -34,7 +34,7 @@ object Main extends JFXApp {
 
         gridProp.onChange((_, _, newGrid) => center = GridView.createGridPane(mainScene.width * 0.8, newGrid))
 
-        right = SettingsView.createSettingsView(mainScene.width * 0.2, rowsProp, columnsProp)
+        right = SettingsView.createSettingsView(mainScene.width * 0.2, rowsProp, columnsProp, gridProp)
 
         center = GridView.createGridPane(mainScene.width * 0.8, gridProp.value)
       }
