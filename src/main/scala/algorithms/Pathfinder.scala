@@ -4,7 +4,7 @@ import graph.Node
 
 import scala.collection.mutable
 
-private[algorithms] trait Pathfinder {
+trait Pathfinder {
   val name: String
 
   def findPath(from: Node, to: Node, paths: Map[Node, Set[Node]]): Set[Node]
@@ -18,4 +18,6 @@ private[algorithms] trait Pathfinder {
     }
     nodes.toSet
   }
+
+  final override def toString: String = name
 }

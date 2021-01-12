@@ -1,6 +1,4 @@
 import graph.{NodeState, NodeStates}
-import javafx.scene.control.{ToggleButton => JToggleButton}
-import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.geometry.Insets
@@ -17,10 +15,6 @@ object Main extends JFXApp {
   rowsProp.onChange((_, _, newRows) => gridProp.value = new Grid(newRows.toInt, gridProp.value.mapColumns, toolProp))
   columnsProp.onChange((_, _, newColumns) => gridProp.value = new Grid(gridProp.value.mapRows, newColumns.toInt, toolProp))
 
-  SettingsView.toolsToggleGroup.selectedToggle.onChange { (_, _, newToggle) =>
-    toolProp.value = NodeStates.withName(newToggle.asInstanceOf[JToggleButton].text.value)
-  }
-
   stage = new JFXApp.PrimaryStage {
     title = "ScalaFX Pathfinding Demo"
     width = 600
@@ -34,7 +28,9 @@ object Main extends JFXApp {
 
         gridProp.onChange((_, _, newGrid) => center = GridView.createGridPane(mainScene.width * 0.8, newGrid))
 
-        right = SettingsView.createSettingsView(mainScene.width * 0.2, rowsProp, columnsProp, gridProp)
+        top = ToolBarView.createToolBar(gridProp, toolProp)
+
+        right = SettingsView.createSettingsView(mainScene.width * 0.2, rowsProp, columnsProp)
 
         center = GridView.createGridPane(mainScene.width * 0.8, gridProp.value)
       }
