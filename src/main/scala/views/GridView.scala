@@ -1,6 +1,6 @@
 package views
 
-import graph.{Node, NodeState}
+import graph.{Node, NodeState, NodeStates}
 import scalafx.beans.binding.NumberBinding
 import scalafx.beans.property.ObjectProperty
 import scalafx.geometry.Insets
@@ -11,6 +11,11 @@ final class Grid(val mapRows: Int, val mapColumns: Int, toolProp: ObjectProperty
     IndexedSeq.fill(mapRows)(IndexedSeq.fill(mapColumns)(Node.createNode(toolProp)))
 
   def apply(row: Int): IndexedSeq[Node] = matrix(row)
+
+  def clear(): Unit       = matrix.flatten.foreach(_.changeStateTo(NodeStates.Undiscovered))
+  def clearResult(): Unit = matrix.flatten
+    .filter(n => n.state == NodeStates.Visited || n.state == NodeStates.Path)
+    .foreach(_.changeStateTo(NodeStates.Undiscovered))
 }
 
 object GridView {

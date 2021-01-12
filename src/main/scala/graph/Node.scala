@@ -13,7 +13,7 @@ final class Node(val region: Region) {
 
   var state: NodeState = NodeStates.Undiscovered
 
-  private def changeStateTo(newState: NodeState): Unit = {
+  def changeStateTo(newState: NodeState): Unit = {
     region.style = backgroundStyle(newState.color)
     state = newState
   }
