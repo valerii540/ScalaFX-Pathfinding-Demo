@@ -13,7 +13,9 @@ case class Graph(paths: Map[Node, Set[Node]]) {
     distance += (start -> 0)
     priorityQueue += (start -> distance(start))
     while (priorityQueue.nonEmpty) {
+      Thread.sleep(200)
       val (current, dist) = priorityQueue.dequeue()
+      if (current.state == NodeStates.Undiscovered) current.changeStateTo(NodeStates.Visited)
       if (end == current) priorityQueue.clear()
       else {
         for (neighbor <- paths(current)) {
@@ -27,6 +29,33 @@ case class Graph(paths: Map[Node, Set[Node]]) {
     }
     path.toMap
   }
+
+  def astar(start: Node, end: Node): Map[Node, Node] = {
+    val distance: mutable.Map[Node, Int] = mutable.Map[Node, Int]()
+    val priorityQueue: mutable.PriorityQueue[(Node, Int)] = mutable.PriorityQueue[(Node, Int)]()(Ordering.by((in: (Node, Int)) => directDistance(in._1, end)).reverse)
+    val path: mutable.Map[Node, Node] = mutable.Map[Node, Node]()
+
+    distance += (start -> 0)
+    priorityQueue += (start -> distance(start))
+    while (priorityQueue.nonEmpty) {
+      Thread.sleep(200)
+      val (current, dist) = priorityQueue.dequeue()
+      if (current.state == NodeStates.Undiscovered) current.changeStateTo(NodeStates.Visited)
+      if (end == current) priorityQueue.clear()
+      else {
+        for (neighbor <- paths(current)) {
+          if (!distance.contains(neighbor) || distance(neighbor) > dist + 1) {
+            distance += (neighbor -> (dist + 1))
+            path += (neighbor -> current)
+            priorityQueue += (neighbor -> distance(neighbor))
+          }
+        }
+      }
+    }
+    path.toMap
+  }
+
+  def directDistance(start: Node, end: Node): Double = Math.sqrt(Math.pow(start.row - end.row, 2) + Math.pow(start.col - end.col, 2))
 
   def shortestPathNodes(path: Map[Node, Node], start: Node, end: Node): Set[Node] = {
     var current = end

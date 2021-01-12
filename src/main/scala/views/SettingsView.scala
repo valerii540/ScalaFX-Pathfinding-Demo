@@ -8,6 +8,9 @@ import scalafx.geometry.Insets
 import scalafx.scene.control._
 import scalafx.scene.layout.{HBox, Pane, Region, VBox}
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 object SettingsView {
   val toolsToggleGroup = new ToggleGroup
 
@@ -59,15 +62,31 @@ object SettingsView {
         },
         new Separator,
         new Button       {
-          text = "Run"
+          text = "Run astar"
           onMouseClicked = _ => {
-            gridProp.value.clearResult()
-            val graph = Graph(gridProp.value.matrix)
-            val start = gridProp.value.matrix.flatten.find(_.state == NodeStates.Start).get
-            val end = gridProp.value.matrix.flatten.find(_.state == NodeStates.Target).get
-            val path = graph.bfs(start, end)
-            path.keys.filter(_.state != NodeStates.Target).foreach(_.changeStateTo(NodeStates.Visited))
-            graph.shortestPathNodes(path, start, end).filter(_.state != NodeStates.Target).foreach(_.changeStateTo(NodeStates.Path))
+            Future {
+              gridProp.value.clearResult()
+              val graph = Graph(gridProp.value.matrix)
+              val start = gridProp.value.matrix.flatten.find(_.state == NodeStates.Start).get
+              val end = gridProp.value.matrix.flatten.find(_.state == NodeStates.Target).get
+              val path = graph.astar(start, end)
+              //            path.keys.filter(_.state != NodeStates.Target).foreach(_.changeStateTo(NodeStates.Visited))
+              graph.shortestPathNodes(path, start, end).filter(_.state != NodeStates.Target).foreach(_.changeStateTo(NodeStates.Path))
+            }
+          }
+        },
+        new Button       {
+          text = "Run bsf"
+          onMouseClicked = _ => {
+            Future {
+              gridProp.value.clearResult()
+              val graph = Graph(gridProp.value.matrix)
+              val start = gridProp.value.matrix.flatten.find(_.state == NodeStates.Start).get
+              val end = gridProp.value.matrix.flatten.find(_.state == NodeStates.Target).get
+              val path = graph.bfs(start, end)
+              //            path.keys.filter(_.state != NodeStates.Target).foreach(_.changeStateTo(NodeStates.Visited))
+              graph.shortestPathNodes(path, start, end).filter(_.state != NodeStates.Target).foreach(_.changeStateTo(NodeStates.Path))
+            }
           }
         },
         new Separator,

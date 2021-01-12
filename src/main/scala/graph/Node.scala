@@ -8,7 +8,7 @@ import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.{Region, StackPane}
 import scalafx.scene.text.Text
 
-final class Node(val region: Region) {
+final class Node(val region: Region, val row: Int, val col: Int) {
   import Node._
 
   var state: NodeState = NodeStates.Undiscovered
@@ -50,7 +50,7 @@ object Node {
 
   def backgroundStyle(color: String) = s"-fx-background-color: $color"
 
-  def createNode(toolProp: ObjectProperty[NodeState]): Node = {
+  def createNode(toolProp: ObjectProperty[NodeState], row: Int, col: Int): Node = {
     val nodeView = new StackPane {
       style = Node.backgroundStyle(Undiscovered.color)
       children = new Text {
@@ -58,7 +58,7 @@ object Node {
       }
     }
 
-    val node = new Node(nodeView)
+    val node = new Node(nodeView, row, col)
 
     nodeView.onDragDetected = (e: MouseEvent) => {
       toolProp.value match {

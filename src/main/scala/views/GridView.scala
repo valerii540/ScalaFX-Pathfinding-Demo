@@ -8,7 +8,7 @@ import scalafx.scene.layout._
 
 final class Grid(val mapRows: Int, val mapColumns: Int, toolProp: ObjectProperty[NodeState]) {
   val matrix: IndexedSeq[IndexedSeq[Node]] =
-    IndexedSeq.fill(mapRows)(IndexedSeq.fill(mapColumns)(Node.createNode(toolProp)))
+    IndexedSeq.tabulate(mapRows, mapColumns)((row, col) => Node.createNode(toolProp, row, col))
 
   def apply(row: Int): IndexedSeq[Node] = matrix(row)
 
