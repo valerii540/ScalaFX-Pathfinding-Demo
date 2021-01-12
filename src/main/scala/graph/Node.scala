@@ -28,15 +28,15 @@ final class Node(val region: Region, val row: Int, val col: Int) {
   def startAndTargetToolHandler(targetState: NodeState): Unit = {
     targetState match {
       case Start  =>
-        if (startNode.isDefined)
-          startNode.get.changeStateTo(Undiscovered)
+        if (Graph.startNode.isDefined)
+          Graph.startNode.get.changeStateTo(Undiscovered)
 
-        startNode = Some(this)
+        Graph.startNode = Some(this)
       case Target =>
-        if (targetNode.isDefined)
-          targetNode.get.changeStateTo(Undiscovered)
+        if (Graph.targetNode.isDefined)
+          Graph.targetNode.get.changeStateTo(Undiscovered)
 
-        targetNode = Some(this)
+        Graph.targetNode = Some(this)
     }
 
     changeStateTo(targetState)
@@ -45,8 +45,6 @@ final class Node(val region: Region, val row: Int, val col: Int) {
 
 object Node {
   private var dragSourceState: NodeState = Undiscovered
-  private var startNode: Option[Node]    = None
-  private var targetNode: Option[Node]   = None
 
   def backgroundStyle(color: String) = s"-fx-background-color: $color"
 
