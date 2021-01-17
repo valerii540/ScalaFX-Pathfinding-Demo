@@ -1,46 +1,25 @@
 package views
 
-import graph.{Node, NodeState}
+import graph.{Graph, Node, NodeState, NodeStates}
 import scalafx.beans.binding.NumberBinding
 import scalafx.beans.property.ObjectProperty
 import scalafx.geometry.Insets
 import scalafx.scene.layout._
 
-import scala.util.Try
-
 final class Grid(val mapRows: Int, val mapColumns: Int, toolProp: ObjectProperty[NodeState]) {
-  private val matrix: IndexedSeq[IndexedSeq[Node]] = {
-
-    val mMatrix: Array[Array[Node]] = Array.fill(mapRows)(new Array(mapColumns))
-
-    for {
-      row <- mMatrix.indices
-      col <- mMatrix(row).indices
-    } mMatrix(row)(col) = Node.createNode(toolProp)
-
-    for {
-      row <- mMatrix.indices
-      col <- mMatrix(row).indices
-    } {
-      val neighbours =
-        Set(
-          Try(mMatrix(row)(col - 1)).toOption,
-          Try(mMatrix(row)(col + 1)).toOption,
-          Try(mMatrix(row - 1)(col)).toOption,
-          Try(mMatrix(row + 1)(col)).toOption
-        ).flatten
-
-      mMatrix(row)(col) = new Node(mMatrix(row)(col).region, neighbours)
-    }
-
-    mMatrix.toIndexedSeq.map(_.toIndexedSeq)
-  }
-
-  for (row <- matrix)
-    println(row.map(_.neighbours.size).mkString(", "))
-  println()
+  val matrix: IndexedSeq[IndexedSeq[Node]] =
+    IndexedSeq.tabulate(mapRows, mapColumns)((row, col) => Node.createNode(toolProp, row, col))
 
   def apply(row: Int): IndexedSeq[Node] = matrix(row)
+
+  def reset(): Unit = {
+    matrix.flatten.foreach(_.changeStateTo(NodeStates.Undiscovered))
+    Graph.clear()
+  }
+
+  def clearResult(): Unit = matrix.flatten
+    .filter(n => n.state == NodeStates.Visited || n.state == NodeStates.Path)
+    .foreach(_.changeStateTo(NodeStates.Undiscovered))
 }
 
 object GridView {

@@ -8,12 +8,12 @@ import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.{Region, StackPane}
 import scalafx.scene.text.Text
 
-final class Node(val region: Region, val neighbours: Set[Node] = Set.empty) {
+final class Node(val region: Region, val row: Int, val col: Int) {
   import Node._
 
   var state: NodeState = NodeStates.Undiscovered
 
-  private def changeStateTo(newState: NodeState): Unit = {
+  def changeStateTo(newState: NodeState): Unit = {
     region.style = backgroundStyle(newState.color)
     state = newState
   }
@@ -28,15 +28,15 @@ final class Node(val region: Region, val neighbours: Set[Node] = Set.empty) {
   def startAndTargetToolHandler(targetState: NodeState): Unit = {
     targetState match {
       case Start  =>
-        if (startNode.isDefined)
-          startNode.get.changeStateTo(Undiscovered)
+        if (Graph.startNode.isDefined)
+          Graph.startNode.get.changeStateTo(Undiscovered)
 
-        startNode = Some(this)
+        Graph.startNode = Some(this)
       case Target =>
-        if (targetNode.isDefined)
-          targetNode.get.changeStateTo(Undiscovered)
+        if (Graph.targetNode.isDefined)
+          Graph.targetNode.get.changeStateTo(Undiscovered)
 
-        targetNode = Some(this)
+        Graph.targetNode = Some(this)
     }
 
     changeStateTo(targetState)
@@ -45,12 +45,10 @@ final class Node(val region: Region, val neighbours: Set[Node] = Set.empty) {
 
 object Node {
   private var dragSourceState: NodeState = Undiscovered
-  private var startNode: Option[Node]    = None
-  private var targetNode: Option[Node]   = None
 
   def backgroundStyle(color: String) = s"-fx-background-color: $color"
 
-  def createNode(toolProp: ObjectProperty[NodeState]): Node = {
+  def createNode(toolProp: ObjectProperty[NodeState], row: Int, col: Int): Node = {
     val nodeView = new StackPane {
       style = Node.backgroundStyle(Undiscovered.color)
       children = new Text {
@@ -58,7 +56,7 @@ object Node {
       }
     }
 
-    val node = new Node(nodeView)
+    val node = new Node(nodeView, row, col)
 
     nodeView.onDragDetected = (e: MouseEvent) => {
       toolProp.value match {
