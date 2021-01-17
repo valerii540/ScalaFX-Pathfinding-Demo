@@ -31,7 +31,7 @@ object PathfindingExecutor {
       cancelPathfinding = None
     }
 
-  def execute(gridProp: ObjectProperty[Grid], algorithm: Pathfinder): Unit = {
+  def execute(gridProp: ObjectProperty[Grid], algorithm: Pathfinder)(callBack: => Unit): Unit = {
     val pathfinding: IO[Unit] = IO.cancelable { cb =>
       gridProp.value.clearResult()
 
@@ -45,7 +45,7 @@ object PathfindingExecutor {
             val path = algorithm.findPath(start, end, graph.paths)
             path.filter(_.state != NodeStates.Target).foreach(_.changeStateTo(NodeStates.Path))
 
-            cb(Right(()))
+            cb(Right(callBack))
           }
         }
       }
@@ -53,6 +53,9 @@ object PathfindingExecutor {
       IO(pathfinding.cancel(true))
     }
 
-    cancelPathfinding = Some(pathfinding.unsafeRunCancelable(_ => ()))
+    cancelPathfinding = Some(pathfinding.unsafeRunCancelable {
+      case Right(_)        => ()
+      case Left(throwable) => throw throwable
+    })
   }
 }

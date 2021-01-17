@@ -5,6 +5,7 @@ import graph.NodeStates.{Obstacle, Start, Target}
 import graph.{Graph, NodeState, NodeStates}
 import javafx.scene.control.{ToggleButton => JToggleButton}
 import scalafx.Includes._
+import scalafx.application.Platform
 import scalafx.beans.property.ObjectProperty
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control.Alert.AlertType
@@ -12,6 +13,9 @@ import scalafx.scene.control._
 import utils.PathfindingExecutor
 
 object ToolBarView {
+  private[this] val startSign = "▶"
+  private[this] val stopSign  = "■"
+
   private[this] def executionAlert() =
     new Alert(AlertType.Information) {
       title = "Execution alert"
@@ -51,19 +55,21 @@ object ToolBarView {
         new Separator,
         choiceBox,
         new Button       { bttn =>
-          text = "▶"
+          text = startSign
           tooltip = new Tooltip("Execute/Stop pathfinding")
           style = "-fx-text-fill: green"
           onMouseClicked = _ => {
-            if (bttn.getText == "▶" && Graph.startNode.isDefined && Graph.targetNode.isDefined) {
+            if (bttn.getText == startSign && Graph.startNode.isDefined && Graph.targetNode.isDefined) {
               val algorithm = choiceBox.selectionModel().getSelectedItem
 
-              PathfindingExecutor.execute(gridProp, algorithm)
+              PathfindingExecutor.execute(gridProp, algorithm) {
+                Platform.runLater { bttn.text = startSign }
+              }
 
-              bttn.text = "■"
-            } else if (bttn.getText == "■") {
+              bttn.text = stopSign
+            } else if (bttn.getText == stopSign) {
               PathfindingExecutor.cancelRunning()
-              bttn.text = "▶"
+              bttn.text = startSign
             } else
               executionAlert()
           }
