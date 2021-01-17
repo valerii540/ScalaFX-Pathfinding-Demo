@@ -9,9 +9,7 @@ import scalafx.beans.property.ObjectProperty
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import utils.PathfindingExecutor
 
 object ToolBarView {
   private[this] def executionAlert() =
@@ -52,24 +50,22 @@ object ToolBarView {
         },
         new Separator,
         choiceBox,
-        new Button       {
-          text = "▶️"
-          tooltip = new Tooltip("Execute pathfinding")
+        new Button       { bttn =>
+          text = "▶"
+          tooltip = new Tooltip("Execute/Stop pathfinding")
           style = "-fx-text-fill: green"
           onMouseClicked = _ => {
-            if (Graph.startNode.isDefined && Graph.targetNode.isDefined)
-              Future {
-                gridProp.value.clearResult()
+            if (bttn.getText == "▶" && Graph.startNode.isDefined && Graph.targetNode.isDefined) {
+              val algorithm = choiceBox.selectionModel().getSelectedItem
 
-                val algo  = choiceBox.selectionModel().getSelectedItem
-                val graph = Graph(gridProp.value.matrix)
-                val start = Graph.startNode.get
-                val end   = Graph.targetNode.get
+              PathfindingExecutor.execute(gridProp, algorithm)
 
-                val path = algo.findPath(start, end, graph.paths)
-                path.filter(_.state != NodeStates.Target).foreach(_.changeStateTo(NodeStates.Path))
-              }
-            else executionAlert()
+              bttn.text = "■"
+            } else if (bttn.getText == "■") {
+              PathfindingExecutor.cancelRunning()
+              bttn.text = "▶"
+            } else
+              executionAlert()
           }
         },
         new Separator,
