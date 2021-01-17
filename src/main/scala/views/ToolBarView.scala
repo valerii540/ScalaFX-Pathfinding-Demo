@@ -31,7 +31,7 @@ object ToolBarView {
         toolProp.value = NodeStates.withName(newToggle.asInstanceOf[JToggleButton].text.value)
     }
 
-    val choiceBox =
+    val algoChoiceBox =
       new ChoiceBox[Pathfinder] {
         items = ObservableBuffer(BFS, AStar)
         selectionModel().selectFirst()
@@ -53,16 +53,17 @@ object ToolBarView {
           toggleGroup = toolsToggleGroup
         },
         new Separator,
-        choiceBox,
+        algoChoiceBox,
         new Button       { bttn =>
           text = startSign
           tooltip = new Tooltip("Execute/Stop pathfinding")
           style = "-fx-text-fill: green"
           onMouseClicked = _ => {
             if (bttn.getText == startSign && Graph.startNode.isDefined && Graph.targetNode.isDefined) {
-              val algorithm = choiceBox.selectionModel().getSelectedItem
+              val algorithm = algoChoiceBox.selectionModel().getSelectedItem
+              val tick      = SettingsView.getTickParameter
 
-              PathfindingExecutor.execute(gridProp, algorithm) {
+              PathfindingExecutor.execute(gridProp, algorithm, tick) {
                 Platform.runLater { bttn.text = startSign }
               }
 

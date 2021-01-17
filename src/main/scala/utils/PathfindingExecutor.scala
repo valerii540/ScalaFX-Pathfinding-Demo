@@ -5,6 +5,7 @@ import cats.effect.{CancelToken, IO}
 import graph.{Graph, NodeStates}
 import scalafx.beans.property.ObjectProperty
 import views.Grid
+import views.enums.Tick
 
 import java.util.concurrent.{ExecutorService, Executors, ThreadFactory}
 
@@ -31,7 +32,7 @@ object PathfindingExecutor {
       cancelPathfinding = None
     }
 
-  def execute(gridProp: ObjectProperty[Grid], algorithm: Pathfinder)(callBack: => Unit): Unit = {
+  def execute(gridProp: ObjectProperty[Grid], algorithm: Pathfinder, tick: Tick)(callBack: => Unit): Unit = {
     val pathfinding: IO[Unit] = IO.cancelable { cb =>
       gridProp.value.clearResult()
 
@@ -42,7 +43,7 @@ object PathfindingExecutor {
       val pathfinding = daemonicExecutor.submit {
         new Runnable {
           override def run(): Unit = {
-            val path = algorithm.findPath(start, end, graph.paths)
+            val path = algorithm.findPath(start, end, graph.paths, tick)
             path.filter(_.state != NodeStates.Target).foreach(_.changeStateTo(NodeStates.Path))
 
             cb(Right(callBack))

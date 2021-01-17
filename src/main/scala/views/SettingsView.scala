@@ -2,11 +2,20 @@ package views
 
 import scalafx.beans.binding.NumberBinding
 import scalafx.beans.property.StringProperty
+import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.scene.control._
 import scalafx.scene.layout.{HBox, Pane, Region, VBox}
+import views.enums.{Tick, Ticks}
 
 object SettingsView {
+  private[this] val tickChoiceBox =
+    new ChoiceBox[Tick] {
+      items = ObservableBuffer(Ticks.values)
+      selectionModel().select(Ticks.`1/5 second`)
+    }
+
+  def getTickParameter: Tick = tickChoiceBox.selectionModel().getSelectedItem
 
   def createSettingsView(
       widthProp: NumberBinding,
@@ -38,7 +47,9 @@ object SettingsView {
               text <==> columns
             }
           )
-        }
+        },
+        new Separator,
+        tickChoiceBox
       )
     }
 }
