@@ -12,7 +12,7 @@ final class Grid(val mapRows: Int, val mapColumns: Int, toolProp: ObjectProperty
 
   def apply(row: Int): IndexedSeq[Node] = matrix(row)
 
-  def clear(): Unit = {
+  def reset(): Unit = {
     matrix.flatten.foreach(_.changeStateTo(NodeStates.Undiscovered))
     Graph.clear()
   }

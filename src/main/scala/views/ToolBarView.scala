@@ -6,7 +6,7 @@ import graph.{Graph, NodeState, NodeStates}
 import javafx.scene.control.{ToggleButton => JToggleButton}
 import scalafx.Includes._
 import scalafx.application.Platform
-import scalafx.beans.property.ObjectProperty
+import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control._
@@ -15,6 +15,13 @@ import utils.PathfindingExecutor
 object ToolBarView {
   private[this] val startSign = "▶"
   private[this] val stopSign  = "■"
+
+  private[this] val controlButtonSign: StringProperty = StringProperty(startSign)
+
+  private[this] def cancelPathfinding(): Unit = {
+    PathfindingExecutor.cancelRunning()
+    controlButtonSign.value = startSign
+  }
 
   private[this] def executionAlert() =
     new Alert(AlertType.Information) {
@@ -55,7 +62,7 @@ object ToolBarView {
         new Separator,
         algoChoiceBox,
         new Button       { bttn =>
-          text = startSign
+          text <== controlButtonSign
           tooltip = new Tooltip("Execute/Stop pathfinding")
           style = "-fx-text-fill: green"
           onMouseClicked = _ => {
@@ -64,14 +71,13 @@ object ToolBarView {
               val tick      = SettingsView.getTickParameter
 
               PathfindingExecutor.execute(gridProp, algorithm, tick) {
-                Platform.runLater { bttn.text = startSign }
+                Platform.runLater { controlButtonSign.value = startSign }
               }
 
-              bttn.text = stopSign
-            } else if (bttn.getText == stopSign) {
-              PathfindingExecutor.cancelRunning()
-              bttn.text = startSign
-            } else
+              controlButtonSign.value = stopSign
+            } else if (bttn.getText == stopSign)
+              cancelPathfinding()
+            else
               executionAlert()
           }
         },
@@ -80,6 +86,7 @@ object ToolBarView {
           text = "⌫"
           tooltip = new Tooltip("Clear only pathfinding results")
           onMouseClicked = _ => {
+            cancelPathfinding()
             gridProp.value.clearResult()
           }
         },
@@ -88,7 +95,8 @@ object ToolBarView {
           style = "-fx-text-fill: red"
           tooltip = new Tooltip("Clear scene completely")
           onMouseClicked = _ => {
-            gridProp.value.clear()
+            cancelPathfinding()
+            gridProp.value.reset()
           }
         }
       )
