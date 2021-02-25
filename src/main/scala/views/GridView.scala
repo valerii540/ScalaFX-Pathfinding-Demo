@@ -2,13 +2,13 @@ package views
 
 import graph.{Graph, Node, NodeState, NodeStates}
 import scalafx.beans.binding.NumberBinding
-import scalafx.beans.property.ObjectProperty
+import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.geometry.Insets
 import scalafx.scene.layout._
 
-final class Grid(val mapRows: Int, val mapColumns: Int, toolProp: ObjectProperty[NodeState]) {
+final class Grid(val mapRows: Int, val mapColumns: Int, toolProp: ObjectProperty[NodeState], levelProp: StringProperty) {
   val matrix: IndexedSeq[IndexedSeq[Node]] =
-    IndexedSeq.tabulate(mapRows, mapColumns)((row, col) => Node.createNode(toolProp, row, col))
+    IndexedSeq.tabulate(mapRows, mapColumns)((row, col) => Node.createNode(toolProp, row, col, levelProp))
 
   def apply(row: Int): IndexedSeq[Node] = matrix(row)
 

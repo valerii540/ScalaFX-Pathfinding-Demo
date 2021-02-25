@@ -3,7 +3,7 @@ package graph
 import graph.NodeStates._
 import javafx.scene.layout.{Region => JRegion}
 import scalafx.Includes._
-import scalafx.beans.property.ObjectProperty
+import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.{Region, StackPane}
 import scalafx.scene.text.Text
@@ -13,8 +13,10 @@ final class Node(val region: Region, val row: Int, val col: Int) {
 
   var state: NodeState = NodeStates.Undiscovered
 
+  var level: Int = 0
+
   def changeStateTo(newState: NodeState): Unit = {
-    region.style = backgroundStyle(newState.color)
+    region.style = backgroundStyle(newState, level)
     state = newState
   }
 
@@ -24,6 +26,11 @@ final class Node(val region: Region, val row: Int, val col: Int) {
       case Obstacle     => changeStateTo(Undiscovered)
       case _            =>
     }
+
+  def setLevelHandler(level: Int): Unit = {
+    this.level = level
+    changeStateTo(state)
+  }
 
   def startAndTargetToolHandler(targetState: NodeState): Unit = {
     targetState match {
@@ -46,11 +53,15 @@ final class Node(val region: Region, val row: Int, val col: Int) {
 object Node {
   private var dragSourceState: NodeState = Undiscovered
 
-  def backgroundStyle(color: String) = s"-fx-background-color: $color"
+  def backgroundStyle(state: NodeState, level: Int = 0) =
+    s"-fx-background-color: ${state.color.atLevel(state match {
+      case Undiscovered => level
+      case _            => 0
+    })}"
 
-  def createNode(toolProp: ObjectProperty[NodeState], row: Int, col: Int): Node = {
+  def createNode(toolProp: ObjectProperty[NodeState], row: Int, col: Int, level: StringProperty): Node = {
     val nodeView = new StackPane {
-      style = Node.backgroundStyle(Undiscovered.color)
+      style = Node.backgroundStyle(Undiscovered)
       children = new Text {
         text = ""
       }
@@ -60,26 +71,36 @@ object Node {
 
     nodeView.onDragDetected = (e: MouseEvent) => {
       toolProp.value match {
-        case Obstacle =>
+        case Obstacle     =>
           e.getSource.asInstanceOf[JRegion].startFullDrag()
           dragSourceState = node.state
           node.obstacleToolHandler()
-        case _        =>
+        case Undiscovered =>
+          e.getSource.asInstanceOf[JRegion].startFullDrag()
+          dragSourceState = node.state
+          node.setLevelHandler(level.value.toInt)
+        case _            =>
       }
     }
 
     nodeView.onMouseDragEntered = _ =>
-      if (toolProp.value == NodeStates.Obstacle && node.state == dragSourceState)
-        node.obstacleToolHandler()
+      (toolProp.value, node.state == dragSourceState) match {
+        case (Obstacle, true)  => node.obstacleToolHandler()
+        case (Undiscovered, _) => node.setLevelHandler(level.value.toInt)
+        case _                 =>
+      }
 
     nodeView.onMouseClicked = _ => {
       toolProp.value match {
-        case NodeStates.Obstacle =>
+        case NodeStates.Obstacle     =>
           dragSourceState = node.state
           node.obstacleToolHandler()
-        case NodeStates.Start    =>
+        case NodeStates.Undiscovered =>
+          dragSourceState = node.state
+          node.setLevelHandler(level.value.toInt)
+        case NodeStates.Start        =>
           node.startAndTargetToolHandler(NodeStates.Start)
-        case NodeStates.Target   =>
+        case NodeStates.Target       =>
           node.startAndTargetToolHandler(NodeStates.Target)
       }
     }
