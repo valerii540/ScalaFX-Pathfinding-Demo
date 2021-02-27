@@ -37,7 +37,7 @@ final class Node(val region: Region, val row: Int, val col: Int) {
   }
 
   private def startAndTargetToolHandler(targetState: NodeState): Unit = {
-    targetState match {
+    (targetState: @unchecked) match {
       case Start  =>
         if (Graph.startNode.isDefined)
           Graph.startNode.get.changeStateTo(Undiscovered)
@@ -93,7 +93,7 @@ object Node {
       }
 
     nodeView.onMouseClicked = _ => {
-      toolProp.value match {
+      (toolProp.value: @unchecked) match {
         case NodeStates.Obstacle     =>
           dragSourceState = node.state
           node.obstacleToolHandler()

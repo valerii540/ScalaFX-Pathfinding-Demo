@@ -14,8 +14,8 @@ object Dependencies {
   }
 
   lazy val libraries: Seq[ModuleID] = Seq(
-    "org.scalafx"   %% "scalafx"     % "15.0.1-R20",
+    "org.scalafx"   %% "scalafx"     % "15.0.1-R21",
     "com.beachape"  %% "enumeratum"  % "1.6.1",
-    "org.typelevel" %% "cats-effect" % "2.3.1"
+    "org.typelevel" %% "cats-effect" % "2.3.3"
   ) ++ javaFXModules
 }
