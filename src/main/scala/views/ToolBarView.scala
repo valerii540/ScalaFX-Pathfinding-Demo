@@ -1,7 +1,7 @@
 package views
 
 import algorithms.{AStar, BFS, Pathfinder}
-import graph.NodeStates.{Obstacle, Start, Target}
+import graph.NodeStates.{Obstacle, Start, Target, Undiscovered}
 import graph.{Graph, NodeState, NodeStates}
 import javafx.scene.control.{ToggleButton => JToggleButton}
 import scalafx.Includes._
@@ -10,6 +10,7 @@ import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control._
+import scalafx.scene.layout.{HBox, Region}
 import utils.PathfindingExecutor
 
 object ToolBarView {
@@ -30,7 +31,7 @@ object ToolBarView {
       contentText = "Please, specify start and target nodes with appropriate buttons"
     }.showAndWait()
 
-  def createToolBar(gridProp: ObjectProperty[Grid], toolProp: ObjectProperty[NodeState]): ToolBar = {
+  def createToolBar(gridProp: ObjectProperty[Grid], toolProp: ObjectProperty[NodeState], level: StringProperty): ToolBar = {
     val toolsToggleGroup = new ToggleGroup
 
     toolsToggleGroup.selectedToggle.onChange { (_, _, newToggle) =>
@@ -46,6 +47,27 @@ object ToolBarView {
 
     new ToolBar {
       content = Seq(
+        new ToggleButton {
+          text = Undiscovered.entryName
+          toggleGroup = toolsToggleGroup
+        },
+        new HBox         { hBox =>
+          children = Seq(
+            new Label("Level:") { minWidth = Region.USE_PREF_SIZE },
+            new TextField       {
+              prefWidth <== 40
+              text <==> level
+              text.onChange((_, _, newValue) =>
+                text = newValue.toIntOption match {
+                  case None                      => "0"
+                  case Some(value) if value > 10 => "10"
+                  case Some(value) if value < 0  => "0"
+                  case Some(value)               => s"$value"
+                }
+              )
+            }
+          )
+        },
         new ToggleButton {
           text = Obstacle.entryName
           toggleGroup = toolsToggleGroup

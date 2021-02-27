@@ -10,7 +10,7 @@ object AStar extends Pathfinder {
   override def findPath(from: Node, to: Node, paths: Map[Node, Set[Node]], tick: Tick): Set[Node] = {
     val distance: mutable.Map[Node, Int]                  = mutable.Map[Node, Int]()
     val priorityQueue: mutable.PriorityQueue[(Node, Int)] =
-      mutable.PriorityQueue[(Node, Int)]()(Ordering.by((in: (Node, Int)) => directDistance(in._1, to)).reverse)
+      mutable.PriorityQueue[(Node, Int)]()(Ordering.by((in: (Node, Int)) => heuristic(in._1, to)).reverse)
     val path: mutable.Map[Node, Node]                     = mutable.Map[Node, Node]()
 
     distance += (from      -> 0)
@@ -19,12 +19,12 @@ object AStar extends Pathfinder {
       tick.sleep()
 
       val (current, dist) = priorityQueue.dequeue()
-      if (current.state == NodeStates.Undiscovered) current.changeStateTo(NodeStates.Visited)
+      if (current.getState == NodeStates.Undiscovered) current.changeStateTo(NodeStates.Visited)
       if (to == current) priorityQueue.clear()
       else
         for (neighbor <- paths(current))
-          if (!distance.contains(neighbor) || distance(neighbor) > dist + 1) {
-            distance += (neighbor      -> (dist + 1))
+          if (!distance.contains(neighbor) || distance(neighbor) > dist + levelDifference(current, neighbor)) {
+            distance += (neighbor      -> (dist + levelDifference(current, neighbor)))
             path += (neighbor          -> current)
             priorityQueue += (neighbor -> distance(neighbor))
           }
@@ -33,6 +33,11 @@ object AStar extends Pathfinder {
     shortestPathNodes(path.toMap, from, to)
   }
 
+  private def heuristic(start: Node, end: Node): Double =
+    directDistance(start, end) + levelDifference(start, end)
+
   private[this] def directDistance(start: Node, end: Node): Double =
     Math.sqrt(Math.pow(start.row - end.row, 2) + Math.pow(start.col - end.col, 2))
+
+  private def levelDifference(start: Node, end: Node): Int = Math.abs(start.getLevel - end.getLevel)
 }

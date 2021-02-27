@@ -13,8 +13,8 @@ object Ticks extends Enum[Tick] {
     override def sleep(): Unit = ()
   }
 
-  case object `1/5 second` extends Tick(200.millis)
-  case object `1/2 second` extends Tick(500.millis)
+  case object `200 ms` extends Tick(200.millis)
+  case object `500 ms` extends Tick(500.millis)
 
   val values: IndexedSeq[Tick] = findValues
 }

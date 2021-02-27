@@ -12,7 +12,7 @@ object SettingsView {
   private[this] val tickChoiceBox =
     new ChoiceBox[Tick] {
       items = ObservableBuffer(Ticks.values)
-      selectionModel().select(Ticks.`1/5 second`)
+      selectionModel().select(Ticks.`200 ms`)
     }
 
   def getTickParameter: Tick = tickChoiceBox.selectionModel().getSelectedItem

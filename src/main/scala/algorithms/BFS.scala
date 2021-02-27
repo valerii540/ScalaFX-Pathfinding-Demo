@@ -19,7 +19,7 @@ object BFS extends Pathfinder {
       tick.sleep()
 
       val (current, dist) = priorityQueue.dequeue()
-      if (current.state == NodeStates.Undiscovered) current.changeStateTo(NodeStates.Visited)
+      if (current.getState == NodeStates.Undiscovered) current.changeStateTo(NodeStates.Visited)
       if (to == current) priorityQueue.clear()
       else
         for (neighbor <- paths(current))
