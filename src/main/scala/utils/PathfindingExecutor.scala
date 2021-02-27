@@ -44,7 +44,7 @@ object PathfindingExecutor {
         new Runnable {
           override def run(): Unit = {
             val path = algorithm.findPath(start, end, graph.paths, tick)
-            path.filter(_.state != NodeStates.Target).foreach(_.changeStateTo(NodeStates.Path))
+            path.filter(_.getState != NodeStates.Target).foreach(_.changeStateTo(NodeStates.Path))
 
             cb(Right(callBack))
           }

@@ -19,7 +19,7 @@ object AStar extends Pathfinder {
       tick.sleep()
 
       val (current, dist) = priorityQueue.dequeue()
-      if (current.state == NodeStates.Undiscovered) current.changeStateTo(NodeStates.Visited)
+      if (current.getState == NodeStates.Undiscovered) current.changeStateTo(NodeStates.Visited)
       if (to == current) priorityQueue.clear()
       else
         for (neighbor <- paths(current))
@@ -39,5 +39,5 @@ object AStar extends Pathfinder {
   private[this] def directDistance(start: Node, end: Node): Double =
     Math.sqrt(Math.pow(start.row - end.row, 2) + Math.pow(start.col - end.col, 2))
 
-  private def levelDifference(start: Node, end: Node): Int = Math.abs(start.level - end.level)
+  private def levelDifference(start: Node, end: Node): Int = Math.abs(start.getLevel - end.getLevel)
 }

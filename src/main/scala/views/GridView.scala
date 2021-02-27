@@ -18,7 +18,7 @@ final class Grid(val mapRows: Int, val mapColumns: Int, toolProp: ObjectProperty
   }
 
   def clearResult(): Unit = matrix.flatten
-    .filter(n => n.state == NodeStates.Visited || n.state == NodeStates.Path)
+    .filter(n => n.getState == NodeStates.Visited || n.getState == NodeStates.Path)
     .foreach(_.changeStateTo(NodeStates.Undiscovered))
 }
 

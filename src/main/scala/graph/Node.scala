@@ -11,28 +11,32 @@ import scalafx.scene.text.Text
 final class Node(val region: Region, val row: Int, val col: Int) {
   import Node._
 
-  var state: NodeState = NodeStates.Undiscovered
+  private[this] var level: Int = 0
 
-  var level: Int = 0
+  private var state: NodeState = NodeStates.Undiscovered
+
+  def getLevel: Int = level
+
+  def getState: NodeState = state
 
   def changeStateTo(newState: NodeState): Unit = {
     region.style = backgroundStyle(newState, level)
     state = newState
   }
 
-  def obstacleToolHandler(): Unit =
+  private def obstacleToolHandler(): Unit =
     state match {
       case Undiscovered => changeStateTo(Obstacle)
       case Obstacle     => changeStateTo(Undiscovered)
       case _            =>
     }
 
-  def setLevelHandler(level: Int): Unit = {
+  private def setLevelHandler(level: Int): Unit = {
     this.level = level
     changeStateTo(state)
   }
 
-  def startAndTargetToolHandler(targetState: NodeState): Unit = {
+  private def startAndTargetToolHandler(targetState: NodeState): Unit = {
     targetState match {
       case Start  =>
         if (Graph.startNode.isDefined)
@@ -51,9 +55,9 @@ final class Node(val region: Region, val row: Int, val col: Int) {
 }
 
 object Node {
-  private var dragSourceState: NodeState = Undiscovered
+  private[this] var dragSourceState: NodeState = Undiscovered
 
-  def backgroundStyle(state: NodeState, level: Int = 0) =
+  private def backgroundStyle(state: NodeState, level: Int = 0) =
     s"-fx-background-color: ${state.color.atLevel(state match {
       case Undiscovered => level
       case _            => 0
@@ -61,10 +65,8 @@ object Node {
 
   def createNode(toolProp: ObjectProperty[NodeState], row: Int, col: Int, level: StringProperty): Node = {
     val nodeView = new StackPane {
-      style = Node.backgroundStyle(Undiscovered)
-      children = new Text {
-        text = ""
-      }
+      style = backgroundStyle(Undiscovered)
+      children = new Text("")
     }
 
     val node = new Node(nodeView, row, col)
