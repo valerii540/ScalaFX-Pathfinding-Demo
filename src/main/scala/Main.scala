@@ -20,10 +20,10 @@ object Main extends JFXApp {
     gridProp.value = new Grid(gridProp.value.mapRows, newColumns.toInt, toolProp, levelProp)
   )
 
-  stage = new JFXApp.PrimaryStage {
+  stage = new JFXApp.PrimaryStage { s =>
     title = "ScalaFX Pathfinding Demo"
-    width = 600
-    height = 400
+    width = 800
+    height = 500
 
     scene = new Scene { mainScene =>
       content = new BorderPane {
@@ -35,7 +35,7 @@ object Main extends JFXApp {
 
         top = ToolBarView.createToolBar(gridProp, toolProp, levelProp)
 
-        right = SettingsView.createSettingsView(mainScene.width * 0.2, rowsProp, columnsProp)
+        right = SettingsView.createSettingsView(mainScene.width * 0.2, rowsProp, columnsProp, gridProp)(s)
 
         center = GridView.createGridPane(mainScene.width * 0.8, gridProp.value)
       }

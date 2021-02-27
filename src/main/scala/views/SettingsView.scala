@@ -1,11 +1,13 @@
 package views
 
 import scalafx.beans.binding.NumberBinding
-import scalafx.beans.property.StringProperty
+import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.scene.control._
 import scalafx.scene.layout.{HBox, Pane, Region, VBox}
+import scalafx.stage.Stage
+import utils.GraphChooser
 import views.enums.{Tick, Ticks}
 
 object SettingsView {
@@ -19,10 +21,11 @@ object SettingsView {
 
   def createSettingsView(
       widthProp: NumberBinding,
-      rows: StringProperty,
-      columns: StringProperty
-  ): Pane =
-    new VBox {
+      rowsProp: StringProperty,
+      columnsProp: StringProperty,
+      gridProp: ObjectProperty[Grid]
+  )(implicit stage: Stage): Pane =
+    new VBox { v =>
       prefWidth <== widthProp
 
       style = "-fx-background-color: rgb(224,224,224)"
@@ -30,12 +33,30 @@ object SettingsView {
       spacing = 5
 
       children = Seq(
+        new HBox {
+          children = Seq(
+            new Button {
+              text = "Open"
+              tooltip = new Tooltip("Load field from file")
+              onMouseClicked = _ => {
+                val file = GraphChooser.open()
+              }
+            },
+            new Button {
+              text = "Save"
+              tooltip = new Tooltip("Save current field as file")
+              onMouseClicked = _ => {
+                GraphChooser.save(gridProp.value)
+              }
+            }
+          )
+        },
         new HBox { hBox =>
           children = Seq(
             new Label("rows:") { minWidth = Region.USE_PREF_SIZE },
             new TextField      {
               prefWidth <== widthProp
-              text <==> rows
+              text <==> rowsProp
             }
           )
         },
@@ -44,7 +65,7 @@ object SettingsView {
             new Label("columns:") { minWidth = Region.USE_PREF_SIZE },
             new TextField         {
               prefWidth <== widthProp
-              text <==> columns
+              text <==> columnsProp
             }
           )
         },
