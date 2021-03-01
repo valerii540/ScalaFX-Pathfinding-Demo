@@ -5,12 +5,14 @@ import scalafx.beans.binding.NumberBinding
 import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.geometry.Insets
 import scalafx.scene.layout._
+import views.Grid.Matrix
 
-final class Grid(val mapRows: Int, val mapColumns: Int, toolProp: ObjectProperty[NodeState], levelProp: StringProperty) {
-  val matrix: IndexedSeq[IndexedSeq[Node]] =
-    IndexedSeq.tabulate(mapRows, mapColumns)((row, col) => Node.createNode(toolProp, row, col, levelProp))
-
+final case class Grid(matrix: Matrix) {
   def apply(row: Int): IndexedSeq[Node] = matrix(row)
+
+  def rows: Int = matrix.length
+
+  def columns: Int = matrix.head.length
 
   def reset(): Unit = {
     matrix.flatten.foreach(_.changeStateTo(NodeStates.Undiscovered))
@@ -20,6 +22,15 @@ final class Grid(val mapRows: Int, val mapColumns: Int, toolProp: ObjectProperty
   def clearResult(): Unit = matrix.flatten
     .filter(n => n.getState == NodeStates.Visited || n.getState == NodeStates.Path)
     .foreach(_.changeStateTo(NodeStates.Undiscovered))
+}
+
+object Grid {
+  type Matrix = IndexedSeq[IndexedSeq[Node]]
+
+  def apply(rows: Int, columns: Int, toolProp: ObjectProperty[NodeState], levelProp: StringProperty): Grid = {
+    val matrix: Matrix = IndexedSeq.tabulate(rows, columns)((row, col) => Node.createNode(toolProp, row, col, levelProp))
+    Grid(matrix)
+  }
 }
 
 object GridView {
@@ -33,20 +44,20 @@ object GridView {
 
       padding = Insets(0, 2, 0, 0)
 
-      columnConstraints = (0 until grid.mapColumns).map(_ =>
+      columnConstraints = (0 until grid.columns).map(_ =>
         new ColumnConstraints {
           hgrow = Priority.Always
         }
       )
-      rowConstraints = (0 until grid.mapRows).map(_ =>
+      rowConstraints = (0 until grid.rows).map(_ =>
         new RowConstraints {
           vgrow = Priority.Always
         }
       )
 
       for {
-        i <- 0 until grid.mapColumns
-        j <- 0 until grid.mapRows
+        i <- 0 until grid.columns
+        j <- 0 until grid.rows
       } add(grid(j)(i).region, i, j)
     }
 

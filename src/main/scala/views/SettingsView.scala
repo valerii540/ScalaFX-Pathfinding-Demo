@@ -1,13 +1,11 @@
 package views
 
 import scalafx.beans.binding.NumberBinding
-import scalafx.beans.property.{ObjectProperty, StringProperty}
+import scalafx.beans.property.StringProperty
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.scene.control._
 import scalafx.scene.layout.{HBox, Pane, Region, VBox}
-import scalafx.stage.Stage
-import utils.GraphChooser
 import views.enums.{Tick, Ticks}
 
 object SettingsView {
@@ -22,9 +20,8 @@ object SettingsView {
   def createSettingsView(
       widthProp: NumberBinding,
       rowsProp: StringProperty,
-      columnsProp: StringProperty,
-      gridProp: ObjectProperty[Grid]
-  )(implicit stage: Stage): Pane =
+      columnsProp: StringProperty
+  )(open: => Unit, save: => Unit): Pane =
     new VBox { v =>
       prefWidth <== widthProp
 
@@ -38,16 +35,12 @@ object SettingsView {
             new Button {
               text = "Open"
               tooltip = new Tooltip("Load field from file")
-              onMouseClicked = _ => {
-                val file = GraphChooser.open()
-              }
+              onMouseClicked = _ => open
             },
             new Button {
               text = "Save"
               tooltip = new Tooltip("Save current field as file")
-              onMouseClicked = _ => {
-                GraphChooser.save(gridProp.value)
-              }
+              onMouseClicked = _ => save
             }
           )
         },

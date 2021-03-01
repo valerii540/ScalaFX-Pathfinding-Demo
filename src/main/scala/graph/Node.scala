@@ -6,12 +6,9 @@ import scalafx.Includes._
 import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.{Region, StackPane}
-import scalafx.scene.text.Text
 
-final class Node(val region: Region, val row: Int, val col: Int) {
+final case class Node(@transient region: Region, row: Int, col: Int, private var level: Int) {
   import Node._
-
-  private[this] var level: Int = 0
 
   private var state: NodeState = NodeStates.Undiscovered
 
@@ -52,10 +49,50 @@ final class Node(val region: Region, val row: Int, val col: Int) {
 
     changeStateTo(targetState)
   }
+
+  private def withHandlers(toolProp: ObjectProperty[NodeState], levelProp: StringProperty): Node = {
+    region.onDragDetected = (e: MouseEvent) => {
+      toolProp.value match {
+        case Obstacle     =>
+          e.getSource.asInstanceOf[JRegion].startFullDrag()
+          dragSourceState = state
+          obstacleToolHandler()
+        case Undiscovered =>
+          e.getSource.asInstanceOf[JRegion].startFullDrag()
+          dragSourceState = state
+          setLevelHandler(levelProp.value.toInt)
+        case _            =>
+      }
+    }
+
+    region.onMouseDragEntered = _ =>
+      (toolProp.value, state == dragSourceState) match {
+        case (Obstacle, true)  => obstacleToolHandler()
+        case (Undiscovered, _) => setLevelHandler(levelProp.value.toInt)
+        case _                 =>
+      }
+
+    region.onMouseClicked = _ => {
+      (toolProp.value: @unchecked) match {
+        case NodeStates.Obstacle     =>
+          dragSourceState = state
+          obstacleToolHandler()
+        case NodeStates.Undiscovered =>
+          dragSourceState = state
+          setLevelHandler(levelProp.value.toInt)
+        case NodeStates.Start        =>
+          startAndTargetToolHandler(NodeStates.Start)
+        case NodeStates.Target       =>
+          startAndTargetToolHandler(NodeStates.Target)
+      }
+    }
+
+    this
+  }
 }
 
 object Node {
-  private[this] var dragSourceState: NodeState = Undiscovered
+  private var dragSourceState: NodeState = Undiscovered
 
   private def backgroundStyle(state: NodeState, level: Int = 0) =
     s"-fx-background-color: ${state.color.atLevel(state match {
@@ -63,50 +100,22 @@ object Node {
       case _            => 0
     })}"
 
-  def createNode(toolProp: ObjectProperty[NodeState], row: Int, col: Int, level: StringProperty): Node = {
+  def enrichNode(partialNode: Node, toolProp: ObjectProperty[NodeState], levelProp: StringProperty): Node = {
+    val nodeView = new StackPane {
+      style = backgroundStyle(partialNode.getState)
+    }
+
+    partialNode
+      .copy(region = nodeView)
+      .withHandlers(toolProp, levelProp)
+  }
+
+  def createNode(toolProp: ObjectProperty[NodeState], row: Int, col: Int, levelProp: StringProperty): Node = {
     val nodeView = new StackPane {
       style = backgroundStyle(Undiscovered)
-      children = new Text("")
     }
 
-    val node = new Node(nodeView, row, col)
-
-    nodeView.onDragDetected = (e: MouseEvent) => {
-      toolProp.value match {
-        case Obstacle     =>
-          e.getSource.asInstanceOf[JRegion].startFullDrag()
-          dragSourceState = node.state
-          node.obstacleToolHandler()
-        case Undiscovered =>
-          e.getSource.asInstanceOf[JRegion].startFullDrag()
-          dragSourceState = node.state
-          node.setLevelHandler(level.value.toInt)
-        case _            =>
-      }
-    }
-
-    nodeView.onMouseDragEntered = _ =>
-      (toolProp.value, node.state == dragSourceState) match {
-        case (Obstacle, true)  => node.obstacleToolHandler()
-        case (Undiscovered, _) => node.setLevelHandler(level.value.toInt)
-        case _                 =>
-      }
-
-    nodeView.onMouseClicked = _ => {
-      (toolProp.value: @unchecked) match {
-        case NodeStates.Obstacle     =>
-          dragSourceState = node.state
-          node.obstacleToolHandler()
-        case NodeStates.Undiscovered =>
-          dragSourceState = node.state
-          node.setLevelHandler(level.value.toInt)
-        case NodeStates.Start        =>
-          node.startAndTargetToolHandler(NodeStates.Start)
-        case NodeStates.Target       =>
-          node.startAndTargetToolHandler(NodeStates.Target)
-      }
-    }
-
-    node
+    Node(nodeView, row, col, 0)
+      .withHandlers(toolProp, levelProp)
   }
 }

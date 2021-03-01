@@ -1,5 +1,7 @@
 package graph
 
+import views.Grid.Matrix
+
 import scala.util.Try
 
 case class Graph(paths: Map[Node, Set[Node]])
@@ -8,7 +10,7 @@ object Graph {
   var startNode: Option[Node]  = None
   var targetNode: Option[Node] = None
 
-  def apply(grid: IndexedSeq[IndexedSeq[Node]]): Graph =
+  def apply(grid: Matrix): Graph =
     Graph((for {
       row       <- grid.indices
       col       <- grid(row).indices if grid(row)(col).getState != NodeStates.Obstacle
