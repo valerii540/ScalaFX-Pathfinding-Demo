@@ -102,12 +102,16 @@ object Node {
 
   def enrichNode(partialNode: Node, toolProp: ObjectProperty[NodeState], levelProp: StringProperty): Node = {
     val nodeView = new StackPane {
-      style = backgroundStyle(partialNode.getState)
+      style = backgroundStyle(partialNode.state, partialNode.level)
     }
 
-    partialNode
+    val node = partialNode
       .copy(region = nodeView)
       .withHandlers(toolProp, levelProp)
+
+    node.state = partialNode.state
+
+    node
   }
 
   def createNode(toolProp: ObjectProperty[NodeState], row: Int, col: Int, levelProp: StringProperty): Node = {

@@ -1,7 +1,8 @@
 package utils
 
 import cats.effect.IO
-import graph.{Node, NodeState}
+import graph.NodeStates.{Start, Target}
+import graph.{Graph, Node, NodeState}
 import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.stage.{FileChooser, Stage}
 import views.Grid
@@ -33,6 +34,9 @@ object GraphChooser {
         .unsafeRunSync()
 
     val updatedMatrix = matrix.map(row => row.map(Node.enrichNode(_, toolProp, levelProp)))
+
+    Graph.startNode = updatedMatrix.flatten.find(_.getState == Start)
+    Graph.targetNode = updatedMatrix.flatten.find(_.getState == Target)
 
     gridProp.value = gridProp.value.copy(matrix = updatedMatrix)
   }
